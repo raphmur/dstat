@@ -10,22 +10,28 @@ class dstat_plugin(dstat):
 
     def __init__(self):
         self.nick = ('used', 'free')
-        self.open('/etc/mtab')
         self.cols = 2
 
     def vars(self):
-        ret = []
-        for l in self.splitlines():
-            if len(l) < 6: continue
-            if l[2] in ('binfmt_misc', 'devpts', 'iso9660', 'none', 'proc', 'sysfs', 'usbfs', 'cgroup', 'tmpfs', 'devtmpfs', 'debugfs', 'mqueue', 'systemd-1', 'rootfs', 'autofs'): continue
-            ### FIXME: Excluding 'none' here may not be what people want (/dev/shm)
-            if l[0] in ('devpts', 'none', 'proc', 'sunrpc', 'usbfs', 'securityfs', 'hugetlbfs', 'configfs', 'selinuxfs', 'pstore', 'nfsd'): continue
-            name = l[1]
-            res = os.statvfs(name)
-            if res[0] == 0: continue ### Skip zero block filesystems
-            ret.append(name)
+        # df has all the currently mounted filesystems
+        lines = os.popen("df").read()
+        lines = lines.splitlines() # Make a list of the lines
+        lines = lines[1:]          # First line is the header we don't need it
 
-            #print l[0] + " / " + name + " / " + l[2]
+        ret = []
+
+        # Loop through what we found and filter out anything with tmpfs in it
+        for l in lines:
+            parts = l.split()
+            ftype = parts[0]
+            mount = parts[5]
+
+            # Skip tmpfs and devtmpfs file systems
+            if "tmpfs" in ftype:
+                continue
+            else:
+                ret.append(mount)
+
         return ret
 
     def name(self):
