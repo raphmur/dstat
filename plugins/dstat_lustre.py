@@ -18,6 +18,8 @@ class dstat_plugin(dstat):
 
     def extract(self):
         for name in self.vars:
+            read = 0
+            write = 0
             for line in dopen(os.path.join('/proc/fs/lustre/llite', name, 'stats')).readlines():
                 l = line.split()
                 if len(l) < 6: continue
