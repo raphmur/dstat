@@ -66,7 +66,7 @@ if sys.version_info < (2, 3):
 
 pluginpath = [
     os.path.expanduser('~/.dstat/'),                                # home + /.dstat/
-    os.path.abspath(os.path.dirname(sys.argv[0])) + '/plugins/',    # binary path + /plugins/
+    os.path.dirname(os.path.realpath(sys.argv[0])) + '/plugins/',    # binary path + /plugins/
     '/usr/share/dstat/',
     '/usr/local/share/dstat/',
 ]
